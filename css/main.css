@@ -1,0 +1,104 @@
+body {
+	margin: 0 auto;
+	width: 960px;
+	font-family: "HelveticaNeue-Thin", "Helvetica Neue Thin", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif; 
+	font-weight: 100;
+	letter-spacing: 3px;
+	/*background-color: #fefdfc;*/
+
+		/*font: "Lucida Grande", "Lucida Sans Unicode", Helvetica, Arial, Verdana, sans-serif;
+	font-family: 'Lucida Grande', 'Lucida Sans Unicode', Helvetica, Arial, Verdana, sans-serif; */
+}
+
+h1 {
+	color: #007eb3;
+	font-style: italic;
+	padding-left: 20px;
+}
+
+#center {
+	margin: 0 auto;
+	width: 70%;
+	padding: 20px;
+}
+
+#center table {
+	margin-left: 10px;
+	width: 95%;
+}
+
+#center tr {
+	width: 70%;
+	min-height: 100%;
+	padding:10px;
+}
+
+#center tr td {
+	border-top:1px solid #d3d3d3;
+	width: 40%;
+	padding-top: 10px;
+	padding-left: 10px;
+	padding-right: 10px;
+	padding-bottom: 30px;
+	margin-left: 20px;
+}
+
+#center tr td .name {
+	
+	color: #007eb3;
+}
+
+#center tr td span {
+	color: black;
+	float: right;
+	font-style: normal;
+}
+
+#center tr td .message {
+	padding-left: 40px;
+}
+
+#tableView {
+	height: 65%;
+	overflow: auto;
+	overflow: -moz-scrollbars-none;
+	border-bottom:2px solid black;
+	border-left: 2px solid black;
+
+}
+
+#tableView::-webkit-scrollbar { 
+    display: none; 
+}
+
+#textWrapper {
+	height: 150px;
+	border-right: 2px solid black;
+	border-bottom:2px solid black;
+}
+
+
+#textWrapper textarea {
+	font-family: inherit;
+   	font-size: inherit;
+	margin-top: 20px;
+	resize: none;
+	overflow: auto;
+	width: 95%;
+	height: 100px;
+	margin-left: 2%;
+}
+
+#login {
+	border:1px solid #d3d3d3;
+	padding:60px;
+	margin-top: 20%;
+	box-shadow: 10px 10px 5px #888888;
+}
+
+#header {
+	height:100px;
+	width:inherit;
+	border-left: 2px solid black;
+	content:url(../assets/batcave.png);
+}
