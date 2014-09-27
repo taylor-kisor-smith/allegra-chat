@@ -11,9 +11,10 @@ angular.module('allegra-chat', [
 ]);
 angular.module('allegra-chat-ctrl', [])
     .controller('ChatCtrl', function($scope, $http) {
-
+        var sock = new SockJS('http://localhost:1337/allegra-chat/chat');
         $scope.messages = [];
         $scope.isLoading = true;
+        $scope.login = {};
         $scope.sendMessage = function() {
 
             $scope.message.username = $scope.username;
@@ -23,49 +24,39 @@ angular.module('allegra-chat-ctrl', [])
             $scope.message = {};
         };
 
-        $scope.login = function () {
-          //  alert($scope.login.password);
+        var onAuth = function(response) {
+            $scope.isLoggedIn = true;
+            console.log(response);
+            var data = response;
+
+            $scope.username = data.username;
+            $scope.timeLoggedIn = data.time;
+            $scope.userId = data.userId;
+
+            document.cookie = "loggedin=true; expires=Thu, 18 Dec 2014 12:00:00 UTC";
            
-           // document.cookie = "loggedin=true; expires=Thu, 18 Dec 2014 12:00:00 UTC";
-           sock.send(JSON.stringify({method:'auth'}));
-            $http({
-                method: 'post',
-                url: 'server/auth',
-                 headers: {
-                    "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
-                },
-                data:  $.param({
-                    "username" : $scope.login.username,
-                    "password" : $scope.login.password
-                })
-            }).then(function (response ) {
-                 $scope.isLoggedIn = true;
-                 console.log(response);
-                 var data = response.data;
+            document.cookie = "loggedin-time="+ data.time + "; expires=Thu, 18 Dec 2014 12:00:00 UTC";
+            document.cookie = "username="+ data.username + "; expires=Thu, 18 Dec 2014 12:00:00 UTC";
+            document.cookie = "userId="+data._id + "; expires=Thu, 18 Dec 2014 12:00:00 UTC";
 
-                 $scope.username = data.username;
-                 $scope.timeLoggedIn = data.time;
-                 $scope.userId = data.userId;
+           onLogin();
+        };
 
-                document.cookie = "loggedin=true; expires=Thu, 18 Dec 2014 12:00:00 UTC";
-                document.cookie = "token=" + data.authkey + "; expires=Thu, 18 Dec 2014 12:00:00 UTC";
-                document.cookie = "loggedin-time="+ data.time + "; expires=Thu, 18 Dec 2014 12:00:00 UTC";
-                document.cookie = "username="+data.username + "; expires=Thu, 18 Dec 2014 12:00:00 UTC";
-                document.cookie = "userId="+data.userId + "; expires=Thu, 18 Dec 2014 12:00:00 UTC";
-
-               onLogin();
-            }, function (erro ) {
-                //donothing
-                alert("Please try again");
-            });
-            
-          //  console.log($rootScope.isLoggedIn);
+        $scope.login = function () {
+         
+           sock.send(
+            JSON.stringify({
+                method:'auth', 
+                body: {
+                    username: $scope.login.username, 
+                    password: $scope.login.password
+                }
+            }
+            ));
         };
         
-        var sock = new SockJS('http://localhost:1337/allegra-chat/chat');
-        
-
         sock.onclose = function (e) {
+
             console.log('Disconnected');
         };
 
@@ -81,16 +72,23 @@ angular.module('allegra-chat-ctrl', [])
 
             console.log(typeof(data));
             
-            if (Array.isArray(data)) {
-                $scope.messages = data
+            if (data.auth && data.auth === true) {
+                onAuth(data);
+            } 
+
+            else { 
+                if (Array.isArray(data)) {
+                    $scope.messages = data
+                }
+                else {
+                    $scope.messages.push(data);
+                }
+                
+                $scope.$apply();
+                var elem = document.getElementById('tableView');
+                elem.scrollTop = elem.scrollHeight;  
             }
-            else {
-                $scope.messages.push(data);
-            }
-            
-            $scope.$apply();
-            var elem = document.getElementById('tableView');
-            elem.scrollTop = elem.scrollHeight;  
+             $scope.$apply();
         };
         sock.onerror = function (e) {
             console.log('error');
@@ -126,16 +124,16 @@ angular.module('allegra-chat-ctrl', [])
         sock.onopen = function (e) {
             console.log('Connected to server');
            
-            mockLogin();
+           // mockLogin();
            
             $scope.isLoggedIn = false;
             $scope.isLoading = false;
             $scope.message = {};
-            $scope.login = {};
+            
 
             if(getCookie('loggedin') !== "") {
                 $scope.isLoggedIn = getCookie('loggedin');
-                onLogin();      
+              //  onLogin();      
             }
 
             if (getCookie('username') !== "") {
@@ -152,7 +150,7 @@ angular.module('allegra-chat-ctrl', [])
 });      
 </script>
 </head>
-<body>
+<body >
 <div id="center">
 
     <div ng-controller="ChatCtrl" >
@@ -164,8 +162,8 @@ angular.module('allegra-chat-ctrl', [])
             </form>
         </div>
         <div id="chatroom" ng-show="isLoggedIn && !isLoading" >
-            <div id="header">
-                    
+            <div id="header" >
+                <img src="assets/batcave.png" />
             </div>
             <div id="tableView" >
                 
@@ -184,17 +182,14 @@ angular.module('allegra-chat-ctrl', [])
                 </table>
             </div>
            <!-- <textarea ng-model="message.content"  /> -->  
-           <div id="textWrapper">
+            <div id="textWrapper">
                 <textarea type="text" ng-model="message.content" ng-keyup="$event.keyCode == 13 ? sendMessage() : null" />
             </div>
         </div>
         
     </div>
     <script type="text/javascript">
-       $(document).ready(function () {
-            var scrollBottom = Math.max($('#table0').height() - $('#tableView').height() + 20, 0);
-            $('#tableView').scrollTop(scrollBottom);
-        });
+       
 
     </script>
 </div>

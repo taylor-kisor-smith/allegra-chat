@@ -1,6 +1,6 @@
 'use strict';
 
-var mongoose = require('mongoose')
+var mongoose = require('mongoose'),
 	Schema = mongoose.Schema;
 
 var userSchema = new Schema({
@@ -26,7 +26,8 @@ var userController = {
 	},
 
 	findByUsername: function(username, callback) {
-		User.find({'username': username.trim()}, callback);
+		console.log(username);
+		User.findOne({'username': username.trim()}, callback);
 	}
 };
 

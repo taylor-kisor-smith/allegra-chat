@@ -1,5 +1,6 @@
 var sock = require('sockjs'),
-	messages = require('./message.controller')
+	messages = require('./message.controller'),
+	user = require('./user.controller')
 	;
 
 var clients = {};
@@ -30,7 +31,21 @@ chat.on('connection', function(conn) {
 
 		if(message.method) {
 			if(message['method'] === 'auth') {
+				console.log(message);
+				user.findByUsername(message.body.username, function(err, result) {
+					console.log(err);
+					console.log(result);
 
+					if (err) return console.log(err);
+					var correct = result.password;
+					if (correct === message.body.password) {
+						var prep = JSON.parse(JSON.stringify(result));
+						delete prep['password'];
+						prep['auth'] = true;
+						console.log(prep);
+						conn.write(JSON.stringify(prep));
+					}
+				});
 			}
 
 			if (message['method'] === 'onLogin') {

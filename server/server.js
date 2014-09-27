@@ -4,10 +4,13 @@ var http = require('http'),
 	chat = require('./controllers/chat.controller')
 	;
 
+var main = function() {
+	mongoose.connect(config.connectionString);
 
-mongoose.connect(config.connectionString);
+	var server = http.createServer();
+	chat.installHandlers(server, {prefix: config.routes.prefix});
 
-var server = http.createServer();
-chat.installHandlers(server, {prefix: config.routes.prefix});
+	server.listen(1337, '0.0.0.0');
+};
 
-server.listen(1337, '0.0.0.0');
+module.exports = main;

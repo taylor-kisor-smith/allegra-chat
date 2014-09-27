@@ -3,7 +3,7 @@ body {
 	width: 960px;
 	font-family: "HelveticaNeue-Thin", "Helvetica Neue Thin", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif; 
 	font-weight: 100;
-	letter-spacing: 3px;
+	/*letter-spacing: 2px;*/
 	/*background-color: #fefdfc;*/
 
 		/*font: "Lucida Grande", "Lucida Sans Unicode", Helvetica, Arial, Verdana, sans-serif;
@@ -61,10 +61,12 @@ h1 {
 #tableView {
 	height: 65%;
 	overflow: auto;
-	overflow: -moz-scrollbars-none;
 	border-bottom:2px solid black;
 	border-left: 2px solid black;
+}
 
+#tableView::-moz-scrollbars {
+	display: none;
 }
 
 #tableView::-webkit-scrollbar { 
@@ -97,8 +99,12 @@ h1 {
 }
 
 #header {
-	height:100px;
+	height:10%;
 	width:inherit;
 	border-left: 2px solid black;
-	content:url(../assets/batcave.png);
+/*	content: url("../assets/batcave.png"); */
+}
+
+#header img {
+	height:100%;
 }
