@@ -1,3 +1,7 @@
-var main = require('./server/server.js');
+var main = require('./server/server.js'),
+	express = require('express');
 
-main();
+app = express();
+app.use(express.static(__dirname + "/"));
+
+main(app);

@@ -2,7 +2,6 @@
 <head>
 <title>Hello</title>
 <link rel="stylesheet" type="text/css" href="css/main.css" />
-<script src="http://cdn.sockjs.org/sockjs-0.3.min.js"></script>
 <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.0-rc.2/angular.min.js"></script>
 <script>
@@ -11,7 +10,10 @@ angular.module('allegra-chat', [
 ]);
 angular.module('allegra-chat-ctrl', [])
     .controller('ChatCtrl', function($scope, $http) {
-        var sock = new SockJS('http://localhost:1337/allegra-chat/chat');
+
+        var host = location.origin.replace(/^http/, 'ws');
+        console.log(host);
+        var sock = new WebSocket(host);
         $scope.messages = [];
         $scope.isLoading = true;
         $scope.login = {};

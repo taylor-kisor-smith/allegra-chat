@@ -2,17 +2,17 @@
   "name": "allegra-chat",
   "version": "0.0.1",
   "description": "Chat server",
-  "main": "server.js",
   "scripts": {
-    "start": "node server.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node server.js"
   },
   "dependencies": {
-    "ejs": "*",
+    "ws": "0.4.x",
     "express": "3.4.8",
     "sockjs": "^0.3.9",
-    "superagent": "*",
-    "mongoose": "*"
+    "mongoose": "3.8.16"
+  },
+  "engines": {
+    "node": "0.10.x"
   },
   "author": "tfkisorsmith",
   "license": "ISC"
