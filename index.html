@@ -133,7 +133,7 @@ angular.module('allegra-chat-ctrl', [])
 
             if(getCookie('loggedin') !== "") {
                 $scope.isLoggedIn = getCookie('loggedin');
-              //  onLogin();      
+                onLogin();      
             }
 
             if (getCookie('username') !== "") {
