@@ -1,8 +1,12 @@
-angular.module('allegra-chat-ctrl', [])
+angular.module('allegra-chat', [])
     .controller('ChatCtrl', function($scope, $http) {
 
+        var host = location.origin.replace(/^http/, 'ws');
+        console.log(host);
+        var sock = new WebSocket(host);
         $scope.messages = [];
-
+        $scope.isLoading = true;
+        $scope.login = {};
         $scope.sendMessage = function() {
 
             $scope.message.username = $scope.username;
@@ -12,68 +16,71 @@ angular.module('allegra-chat-ctrl', [])
             $scope.message = {};
         };
 
-        $scope.login = function () {
-          //  alert($scope.login.password);
+        var onAuth = function(response) {
+            $scope.isLoggedIn = true;
+            console.log(response);
+            var data = response;
+
+            $scope.username = data.username;
+            $scope.timeLoggedIn = data.time;
+            $scope.userId = data.userId;
+
+            document.cookie = "loggedin=true; expires=Thu, 18 Dec 2014 12:00:00 UTC";
            
-           // document.cookie = "loggedin=true; expires=Thu, 18 Dec 2014 12:00:00 UTC";
-           sock.send(JSON.stringify({method:'auth'}));
-            $http({
-                method: 'post',
-                url: 'server/auth',
-                 headers: {
-                    "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
-                },
-                data:  $.param({
-                    "username" : $scope.login.username,
-                    "password" : $scope.login.password
-                })
-            }).then(function (response ) {
-                 $scope.isLoggedIn = true;
-                 console.log(response);
-                 var data = response.data;
+            document.cookie = "loggedin-time="+ data.time + "; expires=Thu, 18 Dec 2014 12:00:00 UTC";
+            document.cookie = "username="+ data.username + "; expires=Thu, 18 Dec 2014 12:00:00 UTC";
+            document.cookie = "userId="+data._id + "; expires=Thu, 18 Dec 2014 12:00:00 UTC";
 
-                 $scope.username = data.username;
-                 $scope.timeLoggedIn = data.time;
-                 $scope.userId = data.userId;
+           onLogin();
+        };
 
-                document.cookie = "loggedin=true; expires=Thu, 18 Dec 2014 12:00:00 UTC";
-                document.cookie = "token=" + data.authkey + "; expires=Thu, 18 Dec 2014 12:00:00 UTC";
-                document.cookie = "loggedin-time="+ data.time + "; expires=Thu, 18 Dec 2014 12:00:00 UTC";
-                document.cookie = "username="+data.username + "; expires=Thu, 18 Dec 2014 12:00:00 UTC";
-                document.cookie = "userId="+data.userId + "; expires=Thu, 18 Dec 2014 12:00:00 UTC";
-
-               onLogin();
-            }, function (erro ) {
-                //donothing
-                alert("Please try again");
-            });
-            
-          //  console.log($rootScope.isLoggedIn);
+        $scope.login = function () {
+         
+           sock.send(
+            JSON.stringify({
+                method:'auth', 
+                body: {
+                    username: $scope.login.username, 
+                    password: $scope.login.password
+                }
+            }
+            ));
         };
         
-        var sock = new SockJS('http://localhost:1337/allegra-chat/chat');
-        
-
         sock.onclose = function (e) {
+
             console.log('Disconnected');
         };
 
         sock.onmessage = function(e) {
             console.log(e.data);
+            var sData = e.data.replace(
+                /((http|https|ftp|ftps)\:\/\/[a-zA-Z0-9\-\.]+\.[a-zA-Z]{2,3}(\/\S*)?)/g,
+                '<a href="$1">$1</a>'
+            );
+
+            console.log(sData);
             var data = $.parseJSON(e.data);
 
             console.log(typeof(data));
             
-            if (Array.isArray(data)) {
-                $scope.messages = data
+            if (data.auth && data.auth === true) {
+                onAuth(data);
+            } 
+
+            else { 
+                if (Array.isArray(data)) {
+                    $scope.messages = data
+                }
+                else {
+                    $scope.messages.push(data);
+                }
+                
+                $scope.$apply();
+                var elem = document.getElementById('tableView');
+                elem.scrollTop = elem.scrollHeight;  
             }
-            else {
-                $scope.messages.push(data);
-            }
-            
-            $scope.$apply();
-            var elem = document.getElementById('tableView');
-            elem.scrollTop = elem.scrollHeight;  
+             $scope.$apply();
         };
         sock.onerror = function (e) {
             console.log('error');
@@ -109,11 +116,12 @@ angular.module('allegra-chat-ctrl', [])
         sock.onopen = function (e) {
             console.log('Connected to server');
            
-            mockLogin();
+           // mockLogin();
            
             $scope.isLoggedIn = false;
+            $scope.isLoading = false;
             $scope.message = {};
-            $scope.login = {};
+            
 
             if(getCookie('loggedin') !== "") {
                 $scope.isLoggedIn = getCookie('loggedin');
